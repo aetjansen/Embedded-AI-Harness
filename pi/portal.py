@@ -1641,8 +1641,10 @@ def serial_write(slot: dict, data: bytes, timeout: float = 5.0) -> dict:
         # drains the write and proves it went out.
         # A short read timeout: with the port's 5 s one, read(256) blocked until
         # 256 bytes or 5 s, so a quiet device made every write take ~5.6 s.
-        ser.timeout = 0.1
-        deadline = time.monotonic() + 0.6
+        # 0.2 s of holding is ample: the proxy is local and forwards to USB in
+        # milliseconds (0.6 s made every serial command take ~1.3 s).
+        ser.timeout = 0.05
+        deadline = time.monotonic() + 0.2
         while time.monotonic() < deadline:
             try:
                 if not ser.read(256):
